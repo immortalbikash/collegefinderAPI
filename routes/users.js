@@ -2,10 +2,10 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../model/users');
+
 const router = express.Router();
 
-//auth ko lahi below..
-// const auth = require('../auth');
+
 
 router.post('/signup', function(req, res, next){
     let password = req.body.password;
@@ -46,21 +46,31 @@ router.post('/login', function(req, res, next){
                     return next(err);
                 }
                 let token = jwt.sign({_id: user._id}, process.env.SECRET);
-                res.json({ status: 'Lofin success', token: token });
+                res.json({ status: 'Login success', token: token });
             }).catch(next);
         }
     }).catch(next);
 })
 
-router.get('/me', auth.verifyUser, function(req, res, next){
-    res.json({_id: req.user._id, firstName: req.user.firstName, lastName: req.user.lastName, number: req.user.number, username: req.user.username});
+router.get('/me', function(req, res, next){
+    find()
+    .then((user)=>{
+        res.send(user);
+    }).catch(next);
+    
 });
 
-router.put('/me', auth.verifyUser, function(req, res, next){
+//
+router.put('/me', function(req, res, next){
     User.findByIdAndUpdate(req.user._id, { $set: req.body }, { new: true })
     .then((user)=>{
         res.json({ _id: user._id, firstName: req.user.firstName, lastName: req.user.lastName, number: req.user.number, username: user.username, image: user.image});
     }).catch(next);
 });
+//
+
+// router.get('/all',(req,res,next)=>{
+//     User.find()
+// })
 
 module.exports = router;
