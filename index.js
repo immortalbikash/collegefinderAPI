@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose= require('mongoose');
 const taskRouter = require('./routes/users');
 const collegeRouter = require('./routes/colleges');
+const auth = require('./auth');
 const morgan = require('morgan');
 const userRouter = require('./routes/users');
 const dotenv = require('dotenv').config();
@@ -12,6 +13,7 @@ const app = express();
 app.use(morgan('tiny'));
 app.use(express.json());
 app.options('*', cors());
+app.use(cors());
 app.use(express.urlencoded({extended: true }));
 
 app.use(express.static(__dirname + "/public"));
@@ -25,6 +27,8 @@ mongoose.connect(process.env.URL, {useNewUrlParser: true, useUnifiedTopology: tr
 app.use('/users', taskRouter);
 app.use('/colleges', collegeRouter);
 app.use('/upload', uploadRouter);
+
+app.use(auth.verifyUser);
 
 
 app.use((err, req, res, next) => {

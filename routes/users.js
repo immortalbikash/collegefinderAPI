@@ -1,10 +1,12 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+// const User = require('../model/users');
 const User = require('../model/users');
 
 const router = express.Router();
 
+const auth = require('../auth');
 
 
 router.post('/signup', function(req, res, next){
@@ -52,19 +54,15 @@ router.post('/login', function(req, res, next){
     }).catch(next);
 })
 
-router.get('/me', function(req, res, next){
-    find()
-    .then((user)=>{
-        res.send(user);
-    }).catch(next);
-    
-});
+router.get('/me', auth.verifyUser, (req, res, next)=>{
+    res.json(req.user);
+})
 
 //
-router.put('/me', function(req, res, next){
+router.put('/me', auth.verifyUser, (req, res, next) =>{
     User.findByIdAndUpdate(req.user._id, { $set: req.body }, { new: true })
     .then((user)=>{
-        res.json({ _id: user._id, firstName: req.user.firstName, lastName: req.user.lastName, number: req.user.number, username: user.username, image: user.image});
+        res.json({ _id: user._id, firstName: req.user.firstName, lastName: req.user.lastName, number: req.user.number, username: req.user.username});
     }).catch(next);
 });
 //
@@ -72,5 +70,6 @@ router.put('/me', function(req, res, next){
 // router.get('/all',(req,res,next)=>{
 //     User.find()
 // })
+
 
 module.exports = router;
